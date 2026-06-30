@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee Details</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <div class="sidebar">
+    <div class="px-4 text-white mb-4">
+      <h4>Admin Panel</h4>
+      <p>Employee details</p>
+    </div>
+    <div class="list-group list-group-flush">
+      <a href="/admin/dashboard" class="list-group-item list-group-item-action bg-transparent text-white">Dashboard</a>
+      <a href="/admin/employees" class="list-group-item list-group-item-action bg-transparent text-white active">Employees</a>
+      <a href="/admin/requests" class="list-group-item list-group-item-action bg-transparent text-white">Leave Requests</a>
+      <a href="/admin/logout" class="list-group-item list-group-item-action bg-transparent text-white">Logout</a>
+    </div>
+  </div>
+  <div class="content-wrapper">
+    <div class="container-fluid">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2><%= employee.name %></h2>
+          <p class="text-muted"><%= employee.email %> | <%= employee.department %></p>
+        </div>
+        <a href="/admin/employees" class="btn btn-outline-secondary btn-sm">Back to list</a>
+      </div>
+      <div class="row g-4 mb-4">
+        <div class="col-md-6">
+          <div class="card p-4">
+            <h5>Leave Balances</h5>
+            <ul class="list-group list-group-flush mt-3">
+              <li class="list-group-item d-flex justify-content-between">Sick Leave <span><%= balance.sick_leave %></span></li>
+              <li class="list-group-item d-flex justify-content-between">Casual Leave <span><%= balance.casual_leave %></span></li>
+              <li class="list-group-item d-flex justify-content-between">Privileged Leave <span><%= balance.privileged_leave %></span></li>
+              <li class="list-group-item d-flex justify-content-between">Optional Leave <span><%= balance.optional_leave %></span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card p-4">
+            <h5>Employee Information</h5>
+            <p><strong>Name:</strong> <%= employee.name %></p>
+            <p><strong>Email:</strong> <%= employee.email %></p>
+            <p><strong>Department:</strong> <%= employee.department %></p>
+          </div>
+        </div>
+      </div>
+      <div class="card p-4">
+        <h5>Previous Leave Requests</h5>
+        <div class="table-responsive mt-3">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr>
+                <th>Type</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Days</th>
+                <th>Status</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% history.forEach(item => { %>
+                <tr>
+                  <td><%= item.leave_type %></td>
+                  <td><%= item.from_date.toISOString().split('T')[0] %></td>
+                  <td><%= item.to_date.toISOString().split('T')[0] %></td>
+                  <td><%= item.days %></td>
+                  <td><span class="status-pill <%= item.status === 'PENDING' ? 'status-pending' : item.status === 'APPROVED' ? 'status-approved' : 'status-rejected' %>"><%= item.status %></span></td>
+                  <td><%= item.admin_notes || '-' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

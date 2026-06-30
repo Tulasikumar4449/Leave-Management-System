@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Employee Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/js/dashboard.js" defer></script>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark px-4">
+    <a class="navbar-brand text-white fw-bold" href="/dashboard">Leave Portal</a>
+    <div class="ms-auto d-flex align-items-center gap-3">
+      <a class="text-white position-relative" href="/notifications" title="Notifications">
+        <svg width="22" height="22" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M8 16a2 2 0 0 0 1.985-1.75H6.015A2 2 0 0 0 8 16zm.778-14.5A1.5 1.5 0 0 1 10.5 3V4c0 .564.11 1.112.327 1.616A5.992 5.992 0 0 1 14 10c0 1.098-.27 2.13-.76 3.038-.35.69-1.08 1.06-1.84.962H4.6c-.76.098-1.49-.272-1.84-.962A5.993 5.993 0 0 1 2 10c0-2.507 1.493-4.66 3.673-5.384A2.996 2.996 0 0 0 6.5 4V3a1.5 1.5 0 0 1 1.278-1.5z"/>
+        </svg>
+        <span class="notification-badge"><%= notifications.filter(n => !n.is_read).length %></span>
+      </a>
+      <a class="btn btn-outline-light btn-sm" href="/logout">Logout</a>
+    </div>
+  </nav>
+
+  <div class="content-wrapper">
+    <div class="hero-banner mb-5">
+      <div class="row align-items-center gy-4">
+        <div class="col-lg-8">
+          <span class="badge bg-primary-soft text-primary mb-3">Employee Dashboard</span>
+          <h1 class="fw-bold mb-3">Hello, <%= user.name %></h1>
+          <p class="text-muted fs-5">Track your leave balance, upcoming leave, company holidays, and analytics from one modern portal.</p>
+          <div class="mt-4">
+            <a class="btn btn-primary btn-glow me-2" href="/apply-leave">Apply for Leave</a>
+            <a class="btn btn-outline-primary" href="/leave-history">Leave History</a>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="profile-card p-4 bg-white rounded-4 shadow-sm">
+            <h5 class="mb-3">Employee Profile</h5>
+            <p class="mb-2"><strong>Name:</strong> <%= user.name %></p>
+            <p class="mb-2"><strong>Email:</strong> <%= user.email %></p>
+            <p class="mb-2"><strong>Department:</strong> <%= user.department %></p>
+            <p class="mb-2"><strong>Employee ID:</strong> EMP<%= user.id.toString().padStart(4, '0') %></p>
+            <p class="mb-0"><strong>Manager:</strong> HR Team</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4 dashboard-summary-row">
+      <div class="col-lg-3">
+        <div class="summary-card shadow-sm p-4">
+          <h6 class="text-muted mb-3">Pending Requests</h6>
+          <h2 class="fw-bold mb-1"><%= stats.pending %></h2>
+          <p class="mb-0 text-muted">Requests awaiting approval</p>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="summary-card shadow-sm p-4">
+          <h6 class="text-muted mb-3">Upcoming Holiday</h6>
+          <% const nextHoliday = (holidays || [])[0]; %>
+          <% if (nextHoliday) { %>
+            <h2 class="fw-bold mb-1"><%= nextHoliday.name %></h2>
+            <p class="mb-0 text-muted"><%= new Date(nextHoliday.holiday_date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) %></p>
+          <% } else { %>
+            <p class="mb-0 text-muted">No upcoming public holidays</p>
+          <% } %>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="summary-card shadow-sm p-4">
+          <h6 class="text-muted mb-3">Leave Balance</h6>
+          <h2 class="fw-bold mb-1"><%= balance.sick_leave + balance.casual_leave + balance.privileged_leave + balance.optional_leave %> days</h2>
+          <p class="mb-0 text-muted">Total available balance</p>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="summary-card shadow-sm p-4">
+          <h6 class="text-muted mb-3">Notifications</h6>
+          <h2 class="fw-bold mb-1"><%= notifications.length %></h2>
+          <p class="mb-0 text-muted">Recent messages for you</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <% const balancePairs = [
+           { label: 'Sick Leave', value: balance.sick_leave || 0, max: 12, color: 'bg-info' },
+           { label: 'Casual Leave', value: balance.casual_leave || 0, max: 12, color: 'bg-warning' },
+           { label: 'Privileged Leave', value: balance.privileged_leave || 0, max: 15, color: 'bg-success' },
+           { label: 'Optional Leave', value: balance.optional_leave || 0, max: 5, color: 'bg-secondary' }
+         ]; %>
+      <% balancePairs.forEach(item => { %>
+        <div class="col-md-6 col-xl-3">
+          <div class="card shadow-sm p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h6 class="text-muted mb-1"><%= item.label %></h6>
+                <h3 class="fw-bold mb-0"><%= item.value %> / <%= item.max %></h3>
+              </div>
+              <span class="badge badge-soft text-muted"><%= Math.round((item.value / item.max) * 100) %>%</span>
+            </div>
+            <div class="progress rounded-pill" style="height: 12px;">
+              <% const percentValue = Math.min(100, Math.round((item.value / item.max) * 100)); %>
+              <div class="progress-bar <%= item.color %> rounded-pill" role="progressbar" data-percent="<%= percentValue %>" aria-valuenow="<%= item.value %>" aria-valuemin="0" aria-valuemax="<%= item.max %>"></div>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-lg-8">
+        <div class="card-calendar card shadow-sm p-4 h-100">
+          <div class="d-flex align-items-start justify-content-between mb-3">
+            <div>
+              <h5>Upcoming Leaves</h5>
+              <p class="text-muted mb-0">See approved and pending leaves on a quick timeline.</p>
+            </div>
+            <span class="badge bg-primary"><%= (leaves || []).length %> events</span>
+          </div>
+          <% if ((leaves || []).length === 0) { %>
+            <div class="alert alert-secondary mb-0">No upcoming leaves scheduled.</div>
+          <% } else { %>
+            <ul class="calendar-list list-unstyled mb-0">
+              <% (leaves || []).forEach(leave => { %>
+                <li class="calendar-item mb-3 p-3 rounded-4 <%= leave.status === 'APPROVED' ? 'calendar-approved' : 'calendar-pending' %>">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div>
+                      <strong><%= leave.leave_type %> Leave</strong>
+                      <div class="text-muted small"><%= leave.from_date.toISOString().split('T')[0] %> → <%= leave.to_date.toISOString().split('T')[0] %></div>
+                    </div>
+                    <span class="badge <%= leave.status === 'APPROVED' ? 'bg-success' : 'bg-warning text-dark' %>"><%= leave.status %></span>
+                  </div>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="card shadow-sm p-4 mb-4 holiday-panel">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <div>
+              <h5 class="mb-0">Upcoming Holidays</h5>
+              <p class="text-muted small mb-0">Plan your leave around public holidays.</p>
+            </div>
+            <span class="badge bg-secondary">Holiday List</span>
+          </div>
+          <% if ((holidays || []).length === 0) { %>
+            <p class="text-muted mb-0">No holiday data available.</p>
+          <% } else { %>
+            <ul class="holiday-list list-unstyled mb-0">
+              <% (holidays || []).forEach(holiday => { %>
+                <li class="holiday-item d-flex justify-content-between align-items-center py-3 border-bottom">
+                  <div>
+                    <div class="fw-semibold"><%= holiday.name || 'Holiday' %></div>
+                    <div class="text-muted small"><%= new Date(holiday.holiday_date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) %></div>
+                  </div>
+                  <span class="badge bg-success text-white">Upcoming</span>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+        </div>
+        <div class="card shadow-sm p-4 insights-panel">
+          <h5 class="mb-3">Insights</h5>
+          <p class="mb-2"><strong>Most Used Leave:</strong> <%= favoriteType %></p>
+          <p class="mb-2"><strong>Longest Leave Taken:</strong> <%= longestLeave.leave_type %> (<%= longestLeave.days %> days)</p>
+          <p class="mb-0"><strong>Total Approved Days:</strong> <%= usedDays %> days</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-xl-4">
+        <div class="card shadow-sm p-4 h-100">
+          <h5 class="mb-3">Status Summary</h5>
+          <div class="status-grid">
+            <div class="status-card status-approved">
+              <span>Approved</span>
+              <strong><%= stats.approved %></strong>
+            </div>
+            <div class="status-card status-pending">
+              <span>Pending</span>
+              <strong><%= stats.pending %></strong>
+            </div>
+            <div class="status-card status-rejected">
+              <span>Rejected</span>
+              <strong><%= stats.rejected %></strong>
+            </div>
+            <div class="status-card badge-soft">
+              <span>Total Requests</span>
+              <strong><%= total %></strong>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-4">
+        <div class="card shadow-sm p-4 h-100 analytics-card">
+          <h5 class="mb-3">Leaves Used This Year</h5>
+          <canvas id="leaveYearChart" data-used="<%= usedDays %>"></canvas>
+        </div>
+      </div>
+      <div class="col-xl-4">
+        <div class="card shadow-sm p-4 h-100 analytics-card">
+          <h5 class="mb-3">Type Distribution</h5>
+          <canvas id="typeDistributionChart" data-labels='<%= typeLabels %>' data-values='<%= typeValues %>'></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm p-4 mt-4">
+      <h5 class="mb-4">Monthly Leave Trend</h5>
+      <canvas id="monthlyTrendChart" data-labels='<%= trendLabels %>' data-values='<%= trendValues %>'></canvas>
+    </div>
+  </div>
+</body>
+</html>

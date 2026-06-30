@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Apply Leave</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <script src="/js/leave.js" defer></script>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark px-4">
+    <a class="navbar-brand text-white" href="/dashboard">Leave Portal</a>
+    <div class="ms-auto">
+      <a class="btn btn-outline-light btn-sm" href="/dashboard">Back</a>
+    </div>
+  </nav>
+  <div class="content-wrapper">
+    <div class="card p-4">
+      <h3>Apply for Leave</h3>
+      <form method="POST" action="/apply-leave" class="mt-4">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Leave Type</label>
+            <select class="form-select" name="leave_type" required>
+              <option value="Sick">Sick Leave</option>
+              <option value="Casual">Casual Leave</option>
+              <option value="Privileged">Privileged Leave</option>
+              <option value="Optional">Optional Leave</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">From Date</label>
+            <input type="date" id="from_date" name="from_date" class="form-control" onchange="calculateDays()" required />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">To Date</label>
+            <input type="date" id="to_date" name="to_date" class="form-control" onchange="calculateDays()" required />
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Days</label>
+            <input type="number" id="days" name="days" class="form-control" readonly />
+          </div>
+          <div class="col-12">
+            <label class="form-label">Reason</label>
+            <textarea class="form-control" name="reason" rows="4" required></textarea>
+          </div>
+        </div>
+        <div class="mt-4">
+          <button type="submit" class="btn btn-primary">Submit Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

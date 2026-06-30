@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body class="bg-surface">
+  <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center px-3">
+    <div class="row shadow-lg rounded-4 overflow-hidden w-100" style="max-width: 1080px;">
+      <div class="col-lg-6 d-none d-lg-flex flex-column justify-content-between p-5 text-white" style="background: linear-gradient(180deg,#4338ca,#2563eb);">
+        <div>
+          <span class="badge bg-white text-dark rounded-pill px-3 py-2 mb-3">Admin Portal</span>
+          <h1 class="display-6 fw-bold">Manage leave with speed and clarity.</h1>
+          <p class="fs-5 text-white-75 mt-3">Approve requests, view employee balances, and keep your leave workflow organized from a polished admin console.</p>
+        </div>
+        <div class="mt-4 text-white-75">
+          <p class="mb-1">Admin Username</p>
+          <strong>admin</strong>
+          <p class="mb-0 mt-3">Password</p>
+          <strong>admin123</strong>
+        </div>
+      </div>
+      <div class="col-lg-6 bg-white p-5">
+        <div class="mb-4">
+          <h2 class="fw-bold">Welcome Back</h2>
+          <p class="text-muted">Sign in to your admin dashboard for leave approvals and employee management.</p>
+        </div>
+        <% if (error) { %>
+          <div class="alert alert-danger rounded-4"> <%= error %> </div>
+        <% } %>
+        <form method="POST" action="/admin/login" class="row g-3">
+          <div class="col-12">
+            <label class="form-label">Username</label>
+            <input type="text" name="username" class="form-control" placeholder="admin" required />
+          </div>
+          <div class="col-12">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" placeholder="admin123" required />
+          </div>
+          <div class="col-12 d-grid">
+            <button type="submit" class="btn btn-primary btn-glow btn-lg">Login</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

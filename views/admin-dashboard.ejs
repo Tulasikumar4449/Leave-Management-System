@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <div class="sidebar">
+    <div class="px-4 text-white mb-4">
+      <h4>Admin Panel</h4>
+      <p>Welcome, <strong><%= user.name %></strong></p>
+    </div>
+    <div class="list-group list-group-flush">
+      <a href="/admin/dashboard" class="list-group-item list-group-item-action bg-transparent text-white active">Dashboard</a>
+      <a href="/admin/employees" class="list-group-item list-group-item-action bg-transparent text-white">Employees</a>
+      <a href="/admin/requests" class="list-group-item list-group-item-action bg-transparent text-white">Leave Requests</a>
+      <a href="/admin/logout" class="list-group-item list-group-item-action bg-transparent text-white">Logout</a>
+    </div>
+  </div>
+  <div class="content-wrapper admin-page">
+    <div class="container-fluid">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-4">
+        <div>
+          <h2 class="fw-bold">Admin Dashboard</h2>
+          <p class="text-muted">Track employees, pending approvals, and leave summary at a glance.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="/admin/employees" class="btn btn-primary btn-glow">View Employees</a>
+          <a href="/admin/requests" class="btn btn-outline-secondary">Review Requests</a>
+          <button class="btn btn-outline-secondary">Export PDF</button>
+        </div>
+      </div>
+      <div class="row g-4 dashboard-summary-row">
+        <div class="col-md-3">
+          <div class="summary-card shadow-sm p-4 bg-white">
+            <h6 class="text-muted mb-3">Total Employees</h6>
+            <h2 class="fw-bold mb-1"><%= totalEmployees %></h2>
+            <p class="mb-0 text-muted">Active employees in the system</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="summary-card shadow-sm p-4 bg-warning text-dark">
+            <h6 class="text-muted mb-3">Pending Requests</h6>
+            <h2 class="fw-bold mb-1"><%= pending %></h2>
+            <p class="mb-0 text-dark">Needs review</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="summary-card shadow-sm p-4 bg-success text-white">
+            <h6 class="text-muted mb-3">Approved Requests</h6>
+            <h2 class="fw-bold mb-1"><%= approved %></h2>
+            <p class="mb-0 text-white-75">Completed approvals</p>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="summary-card shadow-sm p-4 bg-danger text-white">
+            <h6 class="text-muted mb-3">Rejected Requests</h6>
+            <h2 class="fw-bold mb-1"><%= rejected %></h2>
+            <p class="mb-0 text-white-75">Declined requests</p>
+          </div>
+        </div>
+      </div>
+      <div class="row g-4 mt-4">
+        <div class="col-xl-7">
+          <div class="recent-requests-card shadow-sm p-4 h-100">
+            <div class="section-header">
+              <div>
+                <h5>Recent Leave Requests</h5>
+                <p class="text-muted small mb-0">Latest requests for quick action.</p>
+              </div>
+              <a href="/admin/requests" class="btn btn-sm btn-primary">View all</a>
+            </div>
+            <% const safeRecentRequests = typeof recentRequests !== 'undefined' ? recentRequests : []; %>
+            <% if (safeRecentRequests.length === 0) { %>
+              <p class="text-muted">No recent leave requests.</p>
+            <% } else { %>
+              <div class="table-responsive">
+                <table class="table table-borderless align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Employee</th>
+                      <th>Type</th>
+                      <th>Period</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% safeRecentRequests.forEach(request => { %>
+                      <tr>
+                        <td><strong><%= request.employee_name %></strong></td>
+                        <td><%= request.leave_type %></td>
+                        <td><%= new Date(request.from_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %> - <%= new Date(request.to_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %></td>
+                        <td><span class="status-pill <%= request.status === 'APPROVED' ? 'status-approved' : request.status === 'PENDING' ? 'status-pending' : 'status-rejected' %>"><%= request.status %></span></td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </div>
+        <div class="col-xl-5">
+          <div class="dashboard-highlight-card shadow-sm p-4 h-100">
+            <h5>Live Leave Insights</h5>
+            <p class="text-muted mb-4">Snapshot of current workload and potential leave pressure.</p>
+            <div class="insight-item mb-4">
+              <span class="text-muted">Departments with highest pending leaves</span>
+              <h4 class="fw-bold mt-2"><%= (departments || []).sort((a, b) => (b.pendingLeaves || 0) - (a.pendingLeaves || 0))[0]?.department || 'None' %></h4>
+              <p class="mb-0 text-muted">Pending: <%= (departments || []).sort((a, b) => (b.pendingLeaves || 0) - (a.pendingLeaves || 0))[0]?.pendingLeaves || 0 %></p>
+            </div>
+            <div class="insight-item mb-4">
+              <span class="text-muted">Departments with overlapping leave</span>
+              <h4 class="fw-bold mt-2"><%= (conflicts || []).length %></h4>
+              <p class="mb-0 text-muted">Potential concurrency issues</p>
+            </div>
+            <div class="insight-item">
+              <span class="text-muted">Employee ratio</span>
+              <h4 class="fw-bold mt-2"><%= totalEmployees ? Math.max(1, totalEmployees) : 0 %> active</h4>
+              <p class="mb-0 text-muted">Total employee coverage</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <% if ((conflicts || []).length > 0) { %>
+        <div class="alert alert-warning mt-4">
+          <strong>Warning:</strong> <%= (conflicts || []).length %> department(s) have overlapping leave requests in the next 7 days.
+          <% (conflicts || []).forEach(conflict => { %>
+            <div><%= conflict.department %>: <%= conflict.conflictCount %> employees on leave</div>
+          <% }) %>
+        </div>
+      <% } %>
+
+    </div>
+  </div>
+</body>
+</html>
