@@ -1,18 +1,21 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
-
 const app = express();
 const port = process.env.PORT || 3000;
 
+
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '4449',
-  database: 'leave_management'
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT || 3306
 });
+
 
 db.connect((err) => {
   if (err) {
