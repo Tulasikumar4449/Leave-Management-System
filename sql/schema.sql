@@ -1,6 +1,4 @@
-CREATE DATABASE IF NOT EXISTS leave_management;
 
-USE leave_management;
 
 
 -- =========================
